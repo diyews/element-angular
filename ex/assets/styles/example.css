@@ -69,3 +69,10 @@ blockquote {
   color: #5e6d82;
   font-size: 14px;
 }
+
+.date-cell-red {
+
+}
+.date-cell-red span {
+  background: #fa8072;
+}

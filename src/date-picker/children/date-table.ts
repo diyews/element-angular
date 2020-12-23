@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges } from '@angular/core'
+import {Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges, Optional} from '@angular/core'
 import { DateFormat } from '../utils/format'
+import {ElDataPicker} from '../picker';
 
 export type DateRowItem = {
   day: number,                  // day value
@@ -25,6 +26,7 @@ export type DateRow = DateRowItem[]
           [class.normal]="item.monthOffset === 0"
           [class.today]="isToday(item)"
           [class.current]="isTargetDay(item)"
+          [ngClass]="getClass(item)"
           (click)="clickHandle(item)">
           <div>
             <span>{{item.day}}</span>
@@ -48,7 +50,7 @@ export class ElDateTable implements OnInit, OnChanges {
   date: Date
   today: number
   currentMonthOffset: number
-  
+
   static BuildMonthStartRow(first: number, lastCount: number): DateRowItem[] {
     let lastday: number = 7 - first
     // first loop
@@ -60,6 +62,9 @@ export class ElDateTable implements OnInit, OnChanges {
       lastCount --
       return { day: lastCount, monthOffset: -1 }
     }).reverse()
+  }
+
+  constructor(@Optional() private elDataPicker: ElDataPicker) {
   }
   
   isToday(item: DateRowItem): boolean {
@@ -78,11 +83,22 @@ export class ElDateTable implements OnInit, OnChanges {
     // update target and update view
     this.targetDay = item.day
     this.targetMonthOffset = item.monthOffset
-    
+
     // get time and emit a number
     date.setMonth(targetMonth - 1)
     date.setDate(item.day)
     this.modelChange.emit(date.getTime())
+  }
+
+  getDateFromRowItem(item: DateRowItem): Date  {
+    const date = new Date(this.date)
+    const currentMonth = date.getMonth() + 1
+    const targetMonth = currentMonth + item.monthOffset
+
+    date.setMonth(targetMonth - 1)
+    date.setDate(item.day)
+
+    return  date;
   }
   
   getRows(): void {
@@ -110,6 +126,26 @@ export class ElDateTable implements OnInit, OnChanges {
         return { day: nextMonthDay, monthOffset: 1 }
       })
     })
+  }
+
+  getClass(item: DateRowItem): string {
+    let className = '';
+
+    if (this.elDataPicker && this.elDataPicker.dateCellClass) {
+      if (typeof this.elDataPicker.dateCellClass === 'string') {
+        className += this.elDataPicker.dateCellClass + ' ';
+      }
+      if (typeof this.elDataPicker.dateCellClass === 'function') {
+        const cellClass = this.elDataPicker.dateCellClass(this.getDateFromRowItem(item)) || '';
+        if (typeof cellClass === 'string') {
+          className += cellClass + ' ';
+        }
+        if (Array.isArray(cellClass)) {
+          className += cellClass.join(' ') + ''
+        }
+      }
+    }
+    return className
   }
   
   ngOnInit(): void {

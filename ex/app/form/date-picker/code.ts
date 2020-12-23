@@ -38,4 +38,11 @@ handle(time: number): void {
   [elDisabled]="true">
 </el-date-picker>
 `,
+
+// 日期样式
+`
+<el-date-picker (modelChange)="handle($event)"
+ [dateCellClass]="dateCellClass" >
+</el-date-picker>
+`
 ]

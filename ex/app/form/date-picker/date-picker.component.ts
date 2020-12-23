@@ -22,6 +22,9 @@ export class ExDatePickerComponent {
     clearClickHandle(e: Event): void {
       console.log('clear', e)
     }
+    dateCellClass = (date: Date) => {
+      return date.getDay() === 0 || date.getDay() === 6 ? 'date-cell-red' : ''
+    }
   }
   
 }
